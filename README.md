@@ -42,9 +42,11 @@ Open a terminal or command prompt and run:
 
 ```
 pip install Pillow
+```
 
 **or if that doesnt work**
 
+```
 python -m pip install pillow
 ```
 
