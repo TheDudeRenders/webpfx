@@ -42,6 +42,10 @@ Open a terminal or command prompt and run:
 
 ```
 pip install Pillow
+
+**or if that doesnt work**
+
+python -m pip install pillow
 ```
 
 ### 3. Get FFmpeg
@@ -52,19 +56,23 @@ Either:
 - Add `ffmpeg` to your system PATH, **or**
 - Place `ffmpeg.exe` directly in the same folder as `webpfx.py`
 
-### 4. Set up the folder
+### 4. Download and set up the folder
 
+Download **GUI.7z** from the [latest release](https://github.com/TheDudeRenders/webpfx/releases/tag/v1) and extract it.
+
+> ⚠️ **Do not use the "Source code" zip** that GitHub auto-generates on the release page — download **GUI.7z** specifically.
+
+You should end up with a folder that looks like this:
 ```
-your_folder/
-├── webpfx.py
-├── ffmpeg.exe              <- or on PATH
-├── input/                  <- put your .webp animations here
-├── output/                 <- filtered results appear here
-└── banners/                <- (optional) banner images for stitching
+webpfx/
+├── ffmpeg_filter_ui.py
+├── PLACE FFMPEG.EXE HERE OR ADD TO PATH    ← see step 3
+├── input/                                  ← put your .webp files here
+├── output/                                 ← filtered results appear here
+└── banners/                                ← (optional) banner images
 ```
 
 The `input/`, `output/`, and `banners/` folders are created automatically on first run if they don't exist.
-
 ---
 
 ## Usage
