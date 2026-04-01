@@ -73,7 +73,6 @@ webpfx/
 ```
 
 The `input/`, `output/`, and `banners/` folders are created automatically on first run if they don't exist.
----
 
 ## Usage
 
