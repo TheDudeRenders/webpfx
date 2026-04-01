@@ -50,13 +50,13 @@ Download a full build from [gyan.dev](https://www.gyan.dev/ffmpeg/builds/) (Wind
 
 Either:
 - Add `ffmpeg` to your system PATH, **or**
-- Place `ffmpeg.exe` directly in the same folder as `ffmpeg_filter_ui.py`
+- Place `ffmpeg.exe` directly in the same folder as `webpfx.py`
 
 ### 4. Set up the folder
 
 ```
 your_folder/
-├── ffmpeg_filter_ui.py
+├── webpfx.py
 ├── ffmpeg.exe              <- or on PATH
 ├── input/                  <- put your .webp animations here
 ├── output/                 <- filtered results appear here
@@ -71,7 +71,7 @@ The `input/`, `output/`, and `banners/` folders are created automatically on fir
 
 ### Running the tool
 
-Double-click `ffmpeg_filter_ui.py`
+Double-click `webpfx.py`
 
 ### Basic workflow
 
