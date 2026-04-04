@@ -60,7 +60,7 @@ Either:
 
 ### 4. Download and set up the folder
 
-Download **GUI.7z** from the [latest release](https://github.com/TheDudeRenders/webpfx/releases/tag/v1) and extract it.
+Download **GUI.7z** from the [latest release](https://github.com/TheDudeRenders/webpfx/releases) and extract it.
 
 > ⚠️ **Do not use the "Source code" zip** that GitHub auto-generates on the release page — download **GUI.7z** specifically.
 
