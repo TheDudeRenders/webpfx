@@ -59,26 +59,58 @@ def _ffmpeg_cmd(inp, out, vf, fps, single=False):
     if single:
         cmd += f" -frames:v 1 {_q(out)}"
     else:
-        cmd += f" -c:v libwebp_anim -pix_fmt yuva420p -loop 0 {_q(out)}"
+        # Output PNG sequence — Pillow will encode the final WebP with
+        # kmin=1/kmax=1 (all keyframes) to eliminate delta-encoding jitter.
+        # ffmpeg's libwebp_anim does not expose kmin/kmax so we bypass it.
+        cmd += f" {_q(out)}"
     return cmd
 
 def run_ffmpeg(inp, out, vf, fps, on_done):
     log.info(f"run_ffmpeg: {os.path.basename(inp)} -> {os.path.basename(out)}")
     def worker():
+        tmp_out = None
         try:
-            r = _run_shell(_ffmpeg_cmd(inp, out, vf, fps), timeout=600)
-            if r.returncode == 0:
-                sz = os.path.getsize(out) if os.path.exists(out) else 0
-                log.info(f"ffmpeg OK: {sz} bytes")
-                on_done(True, "Done.")
-            else:
+            # Have ffmpeg write to a PNG sequence in a temp dir
+            tmp_out  = tempfile.mkdtemp(prefix="ffui_out_")
+            png_pat  = os.path.join(tmp_out, "f%04d.png")
+            cmd      = _ffmpeg_cmd(inp, png_pat, vf, fps)
+            r        = _run_shell(cmd, timeout=600)
+            if r.returncode != 0:
                 log.error(f"ffmpeg FAIL:\n{r.stderr[-800:]}")
                 on_done(False, r.stderr[-600:])
+                return
+
+            # Collect output PNGs
+            png_files = sorted(glob.glob(os.path.join(tmp_out, "f*.png")))
+            if not png_files:
+                on_done(False, "ffmpeg produced no output frames")
+                return
+
+            # Encode to animated WebP via Pillow with kmin=1, kmax=1
+            # This forces every frame to be a full keyframe — no delta encoding,
+            # no inter-frame DCT re-quantization, no jitter on static elements.
+            dur_ms = int(1000 / fps)
+            frames = [Image.open(p).convert("RGBA") for p in png_files]
+            frames[0].save(
+                out, format="WEBP", save_all=True,
+                append_images=frames[1:],
+                loop=0, duration=dur_ms,
+                lossless=False, quality=90, method=4,
+                kmin=1, kmax=1,
+            )
+            sz = os.path.getsize(out) if os.path.exists(out) else 0
+            log.info(f"Pillow WebP OK: {sz} bytes  {len(frames)}f  kmin=1 kmax=1")
+            on_done(True, "Done.")
+
         except subprocess.TimeoutExpired:
             on_done(False, "FFmpeg timeout (600s)")
         except Exception as e:
             log.error(traceback.format_exc())
             on_done(False, str(e))
+        finally:
+            if tmp_out:
+                shutil.rmtree(tmp_out, ignore_errors=True)
+
     threading.Thread(target=worker, daemon=True).start()
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -395,6 +427,7 @@ def stitch_banner_onto_output(out_path, banner_path, banner_size, position,
             out_path, format="WEBP", save_all=True,
             append_images=frames[1:], loop=0,
             duration=duration_ms, lossless=False, quality=90,
+            kmin=1, kmax=1,
         )
         log.info(f"Banner stitch complete: {out_path}")
         return True
